@@ -1,0 +1,28 @@
+# This script has been tested on Windows 2019 Server v1809 on Powershell v5.1.17763.1971 with Notepad++ and Mozilla Firefox. 
+
+
+# Prompting User for values
+
+$compaddr = Read-Host -Prompt 'Enter text file address with NetBIOS server names (like C:\server.txt)'
+$softaddr = Read-Host -Prompt 'Path of software to install (like C:\software)'
+$arg = Read-Host -Prompt 'Enter any argument you want to pass'
+
+
+# Syncing all software made to be install on remote server/pc
+
+$computers = Get-Content –Path $compaddr
+$softwareFolders = Get-ChildItem –Path $softaddr -Recurse -Include *.*
+
+foreach ($pc in $computers) {
+    New-Item -ItemType Directory -Force -Path \\$pc\c$\Windows\Temp\soft
+    Get-ChildItem $softwareFolders -Recurse  | Copy-Item -Destination \\$pc\c$\Windows\Temp\soft -Force  
+    $s = New-PSSession -ComputerName $pc  
+
+# Installing all software and afterwards cleaning the Temp folder
+
+foreach ($sw in $softwareFolders) {
+        Invoke-Command –ComputerName $pc –ScriptBlock {cmd /c "C:\Windows\Temp\soft\$($using:sw.Name) $using:arg --no-prompt --log-file c:\Windows\Temp\log.log /qn"}
+    }
+    Remove-Item -Path "\\$pc\c$\Windows\Temp\soft" -Recurse -Force
+
+}
