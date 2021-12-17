@@ -1,5 +1,5 @@
 # This script has been tested on Windows 2019 Server v1809 on Powershell v5.1.17763.1971 with Notepad++ and Mozilla Firefox. 
-
+# Save this script as <filename>.ps1
 
 # Prompting User for values
 
